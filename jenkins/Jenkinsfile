@@ -68,29 +68,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Launch Application') {
-            agent {
-                docker {
-                    image 'docker:latest'
-                    reuseNode true
-                    args '-v /var/run/docker.sock:/var/run/docker.sock -u 0'
-                }
-            }
-            environment {
-                COMPOSE_DOCKER_CLI_BUILD = '1'
-                DOCKER_BUILDKIT = '1'
-            }
-
-            steps {
-                sh '''
-            apk add --no-cache docker-compose
-            docker-compose version
-            docker-compose up --build -d
-            '''
-
-            }
-        }
     }
     post {
         always{
