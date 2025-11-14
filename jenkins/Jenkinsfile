@@ -3,14 +3,11 @@ pipeline {
 
     stages {
         stage('Unit Tests - Backend') {
-            environment {
-                GOCACHE = '/tmp/go-build-cache'
-            }
-
             agent {
                 docker {
                     image 'snakee/golang-junit:1.21'
                     reuseNode true
+                    args '-e GOCACHE=/tmp/go-cache -e GOMODCACHE=/tmp/go-mod'
                 }
             }
             steps {
