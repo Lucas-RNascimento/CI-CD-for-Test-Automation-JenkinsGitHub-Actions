@@ -31,6 +31,11 @@ pipeline {
                         npm test
                     '''
                 }
+                post {
+                    always {
+                        junit 'backtracker-frontend/test-results.xml'
+                    }
+                }
             }
         }
     }
