@@ -3,6 +3,10 @@ pipeline {
 
     stages {
         stage('Unit Tests - Backend') {
+            environment {
+                GOCACHE = '/tmp/go-build-cache'
+            }
+
             agent {
                 docker {
                     image 'snakee/golang-junit:1.21'
