@@ -16,8 +16,9 @@ pipeline {
                 }
             }
             post {
-                always }
-                junit 'bugtracker-backend/test-results.xml'
+                always {
+                    junit 'bugtracker-backend/test-results.xml'
+                }
             }
         }
 
