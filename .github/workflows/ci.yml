@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -102,4 +105,5 @@ jobs:
             ## Backend Test Coverage Report
             ```
             ${{ needs.unit-tests-backend.outputs.coverage }}
+
             ```
