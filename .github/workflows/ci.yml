@@ -41,10 +41,12 @@ jobs:
           echo "## Go Test Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
+
           echo '```' >> $GITHUB_STEP_SUMMARY
 
           echo "report<<EOF" >> $GITHUB_OUTPUT
           cat coverage.txt >> $GITHUB_OUTPUT
+
           echo "EOF" >> $GITHUB_OUTPUT
 
           go test -v ./... 2>&1 | go-junit-report > test-results.xml
@@ -58,8 +60,10 @@ jobs:
           reporter: jest-junit
 
   unit-tests-frontend:
-    needs: unit-tests-backend
+    ## needs: unit-tests-backend
     runs-on: ubuntu-latest
+    outputs:
+      coverage: ${{ steps.test-frontend.outputs.report }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,6 +75,7 @@ jobs:
           cache-dependency-path: bugtracker-frontend/package-lock.json
 
       - name: Execute Frontend Unit Tests
+        id: test-frontend
         working-directory: ./bugtracker-frontend
         run: |
           npm ci
@@ -82,6 +87,11 @@ jobs:
 
           echo '```' >> $GITHUB_STEP_SUMMARY
 
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          cat full_output.txt >> $GITHUB_OUTPUT
+
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Publish Frontend Test Results
         uses: dorny/test-reporter@v1
         if: always()
@@ -92,7 +102,7 @@ jobs:
 
   create-coverage-comment:
     if: github.event_name == 'pull_request'
-    ## needs: [unit-tests-backend]
+    needs: [unit-tests-backend, unit-tests-frontend]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -105,5 +115,14 @@ jobs:
             ## Backend Test Coverage Report
             ```
             ${{ needs.unit-tests-backend.outputs.coverage }}
+            ```
 
+      - name: Create FrontEnd Coverage Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Frontebd Test Coverage Report
+            ```
+            ${{ needs.unit-tests-frontend.outputs.coverage }}
             ```
